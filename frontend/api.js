@@ -155,6 +155,7 @@ async function handleLogin() {
     localStorage.setItem('campusnest_user', JSON.stringify(result.user));
     closeModal('login');
     showToast('✅ Logged in successfully!');
+    renderNavAccount();
   }
 }
 
@@ -177,5 +178,47 @@ async function handleSignup() {
     localStorage.setItem('campusnest_user', JSON.stringify(result.user));
     closeModal('signup');
     showToast('🎉 Account created! Welcome to CampusNest');
+    renderNavAccount();
   }
 }
+// ── ACCOUNT UI STATE ──────────────────────────────────────
+
+function renderNavAccount() {
+  const nav = document.getElementById('navActions');
+  const user = JSON.parse(localStorage.getItem('campusnest_user') || 'null');
+
+  if (user) {
+    const initials = user.name ? user.name.slice(0, 2).toUpperCase() : 'U';
+    nav.innerHTML = `
+      <div class="account-menu" style="position:relative;display:inline-block">
+        <div onclick="toggleAccountDropdown()" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 12px;border-radius:8px;background:#f0f4f2">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--brand,#1a6b4a);color:white;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px">${initials}</div>
+          <span style="font-weight:500">${user.name}</span>
+        </div>
+        <div id="accountDropdown" style="display:none;position:absolute;right:0;top:48px;background:white;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15);min-width:160px;overflow:hidden;z-index:100">
+          <div style="padding:10px 16px;font-size:13px;color:#888;border-bottom:1px solid #eee">${user.phone || ''}</div>
+          <div onclick="logoutUser()" style="padding:10px 16px;cursor:pointer;color:#c0392b" onmouseover="this.style.background='#f9f9f9'" onmouseout="this.style.background='white'">Logout</div>
+        </div>
+      </div>
+    `;
+  } else {
+    nav.innerHTML = `
+      <button class="btn btn-ghost" onclick="openModal('login')">Login</button>
+      <button class="btn btn-primary" onclick="openModal('signup')">Sign Up Free</button>
+    `;
+  }
+}
+
+function toggleAccountDropdown() {
+  const d = document.getElementById('accountDropdown');
+  d.style.display = d.style.display === 'none' ? 'block' : 'none';
+}
+
+function logoutUser() {
+  localStorage.removeItem('campusnest_user');
+  showToast('Logged out successfully');
+  renderNavAccount();
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', renderNavAccount);
