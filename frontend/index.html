@@ -1531,7 +1531,7 @@ function renderListings(filter = 'all') {
             <div class="owner-avatar">${l.initials}</div>
             <span class="owner-name">${l.owner}</span>
           </div>
-          <button class="card-contact-btn" onclick="event.stopPropagation();showToast('📱 Contact revealed! Opening WhatsApp...')">Contact</button>
+          <button class="card-contact-btn" onclick="event.stopPropagation();revealContact('${l.owner_phone}')">Contact</button>
         </div>
       </div>
     </div>
