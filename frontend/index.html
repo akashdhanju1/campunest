@@ -1353,13 +1353,13 @@
     <p>Login to your CampusNest account</p>
     <div class="form-group">
       <label>Phone Number</label>
-      <input type="tel" placeholder="Enter your phone number">
+      <input type="tel" id="loginPhone" placeholder="Enter your phone number">
     </div>
     <div class="form-group">
       <label>Password</label>
-      <input type="password" placeholder="Enter password">
+      <input type="password" id="loginPassword" placeholder="Enter password">
     </div>
-    <button class="form-submit" onclick="closeModal('login');showToast('✅ Logged in successfully!')">Login</button>
+    <button class="form-submit" onclick="handleLogin()">Login</button>
     <p class="form-note" style="margin-top:1rem">Don't have an account? <a href="#" style="color:var(--brand);font-weight:500" onclick="closeModal('login');openModal('signup')">Sign up</a></p>
   </div>
 </div>
@@ -1372,24 +1372,24 @@
     <p>Join CampusNest — it's free for students</p>
     <div class="form-group">
       <label>Full Name</label>
-      <input type="text" placeholder="Your name">
+      <input type="text" id="signupName" placeholder="Your name">
     </div>
     <div class="form-group">
       <label>Phone Number</label>
-      <input type="tel" placeholder="10-digit number">
+      <input type="tel" id="signupPhone" placeholder="10-digit number">
     </div>
     <div class="form-group">
       <label>I am a</label>
-      <select>
-        <option>Student looking for housing</option>
-        <option>Property owner / landlord</option>
+      <select id="signupRole">
+        <option value="student">Student looking for housing</option>
+        <option value="owner">Property owner / landlord</option>
       </select>
     </div>
     <div class="form-group">
       <label>Password</label>
-      <input type="password" placeholder="Create a password">
+      <input type="password" id="signupPassword" placeholder="Create a password">
     </div>
-    <button class="form-submit" onclick="closeModal('signup');showToast('🎉 Account created! Welcome to CampusNest')">Create Account</button>
+    <button class="form-submit" onclick="handleSignup()">Create Account</button>
   </div>
 </div>
 

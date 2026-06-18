@@ -136,3 +136,46 @@ function revealContact(phone) {
   }
   window.open(`https://wa.me/91${phone}`, '_blank');
 }
+// ── FORM HANDLERS ──────────────────────────────────────────
+
+async function handleLogin() {
+  const phone = document.getElementById('loginPhone').value;
+  const password = document.getElementById('loginPassword').value;
+
+  if (!phone || !password) {
+    alert('Please enter phone and password');
+    return;
+  }
+
+  const result = await loginUser(phone, password);
+
+  if (result.error) {
+    alert('❌ ' + result.error);
+  } else {
+    localStorage.setItem('campusnest_user', JSON.stringify(result.user));
+    closeModal('login');
+    showToast('✅ Logged in successfully!');
+  }
+}
+
+async function handleSignup() {
+  const name = document.getElementById('signupName').value;
+  const phone = document.getElementById('signupPhone').value;
+  const role = document.getElementById('signupRole').value;
+  const password = document.getElementById('signupPassword').value;
+
+  if (!name || !phone || !password) {
+    alert('Please fill all fields');
+    return;
+  }
+
+  const result = await signupUser(name, phone, password, role);
+
+  if (result.error) {
+    alert('❌ ' + result.error);
+  } else {
+    localStorage.setItem('campusnest_user', JSON.stringify(result.user));
+    closeModal('signup');
+    showToast('🎉 Account created! Welcome to CampusNest');
+  }
+}
