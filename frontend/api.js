@@ -4,7 +4,7 @@
 // Add to index.html: <script src="api.js"></script>
 // ─────────────────────────────────────────────────────────
 
-const API_URL = 'https://campunest.onrender.com';  // change to your live URL after deployment
+const API_URL = 'https://campunest.onrender.com/api';  // change to your live URL after deployment
 
 // ── AUTH ─────────────────────────────────────────────────
 
