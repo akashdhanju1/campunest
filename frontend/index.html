@@ -1416,6 +1416,7 @@ const steps = {
 let currentFilter = 'all';
 
 function renderListings(filter = 'all') {
+  console.log('🔍 renderListings called with filter:', filter, '| array has:', listings.length, 'items');
   const grid = document.getElementById('listingsGrid');
   const filtered = filter === 'all'
     ? listings
