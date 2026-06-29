@@ -1,10 +1,8 @@
 // ─────────────────────────────────────────────────────────
 // CampusNest — Frontend API connector
-// Save this as: frontend/api.js
-// Add to index.html: <script src="api.js"></script>
 // ─────────────────────────────────────────────────────────
 
-const API_URL = 'https://campunest.onrender.com/api';  // change to your live URL after deployment
+const API_URL = 'https://campunest.onrender.com/api';
 
 // ── AUTH ─────────────────────────────────────────────────
 
@@ -26,16 +24,14 @@ async function loginUser(phone, password) {
   return res.json();
 }
 
-
 // ── LISTINGS ──────────────────────────────────────────────
 
 async function fetchListings(type = '', max_price = '') {
   let url = `${API_URL}/listings?`;
   if (type)      url += `type=${type}&`;
   if (max_price) url += `max_price=${max_price}`;
-
   const res = await fetch(url);
-  return res.json();   // returns { listings: [...] }
+  return res.json();
 }
 
 async function addListing(listingData) {
@@ -44,22 +40,19 @@ async function addListing(listingData) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(listingData)
   });
-  return res.json();   // returns { listing: { id, ... } }
+  return res.json();
 }
-
 
 // ── PAYMENTS ─────────────────────────────────────────────
 
 async function startPayment(listing_id, plan, ownerName) {
-  // Step 1: Create Razorpay order from backend
-  const res  = await fetch(`${API_URL}/payments/create-order`, {
+  const res = await fetch(`${API_URL}/payments/create-order`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ listing_id, plan })
   });
   const data = await res.json();
 
-  // Step 2: Open Razorpay checkout popup
   const options = {
     key:         data.key_id,
     amount:      data.amount,
@@ -67,11 +60,9 @@ async function startPayment(listing_id, plan, ownerName) {
     name:        'CampusNest',
     description: `${plan === 'featured' ? 'Featured' : 'Basic'} Listing Fee`,
     order_id:    data.order_id,
-    prefill: { name: ownerName },
-    theme: { color: '#1a6b4a' },
-
+    prefill:     { name: ownerName },
+    theme:       { color: '#1a6b4a' },
     handler: async function(response) {
-      // Step 3: Verify payment on backend
       const verify = await fetch(`${API_URL}/payments/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -83,8 +74,8 @@ async function startPayment(listing_id, plan, ownerName) {
         })
       });
       const result = await verify.json();
-      alert(result.message);         // show success message
-      window.location.reload();      // reload to show live listing
+      alert(result.message);
+      window.location.reload();
     }
   };
 
@@ -92,64 +83,69 @@ async function startPayment(listing_id, plan, ownerName) {
   rzp.open();
 }
 
-
-// ── HELPER: Load listings into the page ──────────────────
-
-// ── HELPER: Load real listings into the page ──────────────
-
-let realListings = [];
+// ── LISTINGS UI ───────────────────────────────────────────
 
 async function loadListingsOnPage(filter = 'all') {
-  const result = await fetchListings(filter === 'all' ? '' : filter);
   const grid = document.getElementById('listingsGrid');
   if (!grid) return;
 
-  if (!result.listings || result.listings.length === 0) {
-    grid.innerHTML = `<div style="text-align:center;padding:3rem;color:#888;grid-column:1/-1">No listings found</div>`;
-    return;
-  }
+  grid.innerHTML = `<div style="text-align:center;padding:3rem;color:#888;grid-column:1/-1">⏳ Loading...</div>`;
 
-  grid.innerHTML = result.listings.map(l => `
-    <div class="listing-card">
-      <div class="card-image">
-        ${l.image_url
-          ? `<img src="${l.image_url}" alt="${l.title}">`
-          : `<div style="background:#e8f0ec;height:200px;display:flex;align-items:center;justify-content:center;color:#aaa">No photo yet</div>`}
-        <div class="card-badge ${l.type === 'pg' ? 'pg' : l.type === 'hostel' ? 'hostel' : ''}">${l.type.toUpperCase()}</div>
-        ${l.is_verified ? '<div class="verified-badge">✓ Verified</div>' : ''}
-      </div>
-      <div class="card-body">
-        <div class="card-price">₹${l.price.toLocaleString()} <span>/ month</span></div>
-        <div class="card-title">${l.title}</div>
-        <div class="card-location">📍 ${l.area}, ${l.city}</div>
-        <div class="card-features">
-          ${(l.features || []).map(f => `<span class="feature-tag">${f}</span>`).join('')}
+  try {
+    const result = await fetchListings(filter === 'all' ? '' : filter);
+
+    if (!result.listings || result.listings.length === 0) {
+      grid.innerHTML = `<div style="text-align:center;padding:3rem;color:#888;grid-column:1/-1">No listings found</div>`;
+      return;
+    }
+
+    grid.innerHTML = result.listings.map(l => `
+      <div class="listing-card">
+        <div class="card-image">
+          ${l.image_url
+            ? `<img src="${l.image_url}" alt="${l.title}">`
+            : `<div style="background:#e8f0ec;height:200px;display:flex;align-items:center;justify-content:center;color:#aaa">No photo yet</div>`}
+          <div class="card-badge ${l.type === 'pg' ? 'pg' : l.type === 'hostel' ? 'hostel' : ''}">${l.type.toUpperCase()}</div>
+          ${l.is_verified ? '<div class="verified-badge">✓ Verified</div>' : ''}
         </div>
-        <div class="card-footer">
-          <div class="owner-info">
-            <div class="owner-avatar">${l.owner_name.slice(0,2).toUpperCase()}</div>
-            <span class="owner-name">${l.owner_name}</span>
+        <div class="card-body">
+          <div class="card-price">₹${l.price.toLocaleString()} <span>/ month</span></div>
+          <div class="card-title">${l.title}</div>
+          <div class="card-location">📍 ${l.area}, ${l.city}</div>
+          <div class="card-features">
+            ${(l.features || []).map(f => `<span class="feature-tag">${f}</span>`).join('')}
           </div>
-          <button class="card-contact-btn" onclick="revealContact('${l.owner_phone}')">Contact</button>
+          <div class="card-footer">
+            <div class="owner-info">
+              <div class="owner-avatar">${l.owner_name ? l.owner_name.slice(0,2).toUpperCase() : 'NA'}</div>
+              <span class="owner-name">${l.owner_name || 'Owner'}</span>
+            </div>
+            <button class="card-contact-btn" onclick="revealContact('${l.owner_phone}')">Contact</button>
+          </div>
         </div>
       </div>
-    </div>
-  `).join('');
-}
+    `).join('');
 
+  } catch(err) {
+    console.error('❌ Failed to load listings:', err);
+    grid.innerHTML = `<div style="text-align:center;padding:3rem;color:#c0392b;grid-column:1/-1">Failed to load listings. Please refresh.</div>`;
+  }
+}
 
 function revealContact(phone) {
   const user = JSON.parse(localStorage.getItem('campusnest_user') || 'null');
   if (!user) {
     alert('Please login to see contact details');
+    openModal('login');
     return;
   }
   window.open(`https://wa.me/91${phone}`, '_blank');
 }
-// ── FORM HANDLERS ──────────────────────────────────────────
+
+// ── FORM HANDLERS ─────────────────────────────────────────
 
 async function handleLogin() {
-  const phone = document.getElementById('loginPhone').value;
+  const phone    = document.getElementById('loginPhone').value;
   const password = document.getElementById('loginPassword').value;
 
   if (!phone || !password) {
@@ -170,9 +166,9 @@ async function handleLogin() {
 }
 
 async function handleSignup() {
-  const name = document.getElementById('signupName').value;
-  const phone = document.getElementById('signupPhone').value;
-  const role = document.getElementById('signupRole').value;
+  const name     = document.getElementById('signupName').value;
+  const phone    = document.getElementById('signupPhone').value;
+  const role     = document.getElementById('signupRole').value;
   const password = document.getElementById('signupPassword').value;
 
   if (!name || !phone || !password) {
@@ -191,10 +187,11 @@ async function handleSignup() {
     renderNavAccount();
   }
 }
+
 // ── ACCOUNT UI STATE ──────────────────────────────────────
 
 function renderNavAccount() {
-  const nav = document.getElementById('navActions');
+  const nav  = document.getElementById('navActions');
   const user = JSON.parse(localStorage.getItem('campusnest_user') || 'null');
 
   if (user) {
@@ -230,5 +227,6 @@ function logoutUser() {
   renderNavAccount();
 }
 
-// Run on page load
+// ── INIT ──────────────────────────────────────────────────
+
 document.addEventListener('DOMContentLoaded', renderNavAccount);
