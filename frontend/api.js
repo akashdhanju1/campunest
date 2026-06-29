@@ -100,7 +100,7 @@ async function startPayment(listing_id, plan, ownerName) {
 let realListings = [];
 
 async function loadListingsOnPage(filter = 'all') {
-  const result = await fetchListings({ type: filter === 'all' ? undefined : filter });
+  const result = await fetchListings(filter === 'all' ? '' : filter);
   const grid = document.getElementById('listingsGrid');
   if (!grid) return;
 
