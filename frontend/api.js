@@ -95,10 +95,19 @@ async function startPayment(listing_id, plan, ownerName) {
 
 // ── HELPER: Load listings into the page ──────────────────
 
-async function loadListingsOnPage() {
-  const result = await fetchListings();
-  const grid   = document.getElementById('listingsGrid');
-  if (!grid || !result.listings) return;
+// ── HELPER: Load real listings into the page ──────────────
+
+let realListings = [];
+
+async function loadListingsOnPage(filter = 'all') {
+  const result = await fetchListings({ type: filter === 'all' ? undefined : filter });
+  const grid = document.getElementById('listingsGrid');
+  if (!grid) return;
+
+  if (!result.listings || result.listings.length === 0) {
+    grid.innerHTML = `<div style="text-align:center;padding:3rem;color:#888;grid-column:1/-1">No listings found</div>`;
+    return;
+  }
 
   grid.innerHTML = result.listings.map(l => `
     <div class="listing-card">
@@ -127,6 +136,7 @@ async function loadListingsOnPage() {
     </div>
   `).join('');
 }
+
 
 function revealContact(phone) {
   const user = JSON.parse(localStorage.getItem('campusnest_user') || 'null');
